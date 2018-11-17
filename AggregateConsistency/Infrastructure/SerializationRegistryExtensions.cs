@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 
 namespace AggregateConsistency.Infrastructure
@@ -9,7 +10,7 @@ namespace AggregateConsistency.Infrastructure
     public delegate Preprocessor CreatePreprocessor(string identifier);
 	public static class SerializationRegistryExtensions
 	{
-		public static SerializationRegistry DefaultForEvent<T>(this SerializationRegistry registry, CreatePostprocessor postSerialization = null, CreatePreprocessor preDeserialization = null)
+		public static ISerializationRegistry DefaultForEvent<T>(this ISerializationRegistry registry, CreatePostprocessor postSerialization = null, CreatePreprocessor preDeserialization = null)
 			where T : Event
 		{
 			bool prePostIsValidEnough = (postSerialization != null && preDeserialization != null) ||
@@ -27,29 +28,29 @@ namespace AggregateConsistency.Infrastructure
 					}, preDeserialization);
 		}
 
-		public static SerializationRegistry DefaultForSnapshot<T>(this SerializationRegistry registry)
+		public static ISerializationRegistry DefaultForSnapshot<T>(this ISerializationRegistry registry)
 			where T : class {
 			return registry
 				.RegisterSnapshotSerializer<T>((e, m) => JObject.FromObject(e, SerializationRegistry.DefaultSerializer))
 				.RegisterSnapshotDeserializer((json, _) => json.ToObject<T>(SerializationRegistry.DefaultSerializer));
 		}
 
-		public static SerializationRegistry RegisterSnapshotSerializer<T>(this SerializationRegistry registry,
+		public static ISerializationRegistry RegisterSnapshotSerializer<T>(this ISerializationRegistry registry,
 			Func<T, IMetadata, JObject> serializer) {
 			var r = (IRegisterSnapshotSerializers) registry;
 			r.Register(serializer);
 			return registry;
 		}
 
-		public static SerializationRegistry RegisterSnapshotDeserializer<T>(this SerializationRegistry registry,
+		public static ISerializationRegistry RegisterSnapshotDeserializer<T>(this ISerializationRegistry registry,
 			Func<JObject, IReadOnlyMetadata, T> deserializer) {
 			var r = (IRegisterSnapshotDeserializers) registry;
 			r.Register(deserializer);
 			return registry;
 		}
 
-		public static SerializationRegistry RegisterEventSerializer<T>(
-			this SerializationRegistry registry,
+		public static ISerializationRegistry RegisterEventSerializer<T>(
+			this ISerializationRegistry registry,
 			string typeName,
 			int version,
 			Func<T, IMetadata, JObject> serializer, 
@@ -60,8 +61,8 @@ namespace AggregateConsistency.Infrastructure
 			return registry;
 		}
 
-		public static SerializationRegistry RegisterEventDeserializer(
-			this SerializationRegistry registry,
+		public static ISerializationRegistry RegisterEventDeserializer(
+			this ISerializationRegistry registry,
 			Type scope,
 			string type,
 			int version,
@@ -79,5 +80,52 @@ namespace AggregateConsistency.Infrastructure
 			chars[0] = char.ToLowerInvariant(chars[0]);
 			return new string(chars);
 		}
+
+	    public static ISerializationRegistry WithEncryption(this ISerializationRegistry registry, IKeyStore store)
+	    {
+            return new WithEncryptionRegistry(registry, store);
+	    }
+
+        class WithEncryptionRegistry: ISerializationRegistry {
+            private readonly ISerializationRegistry _registry;
+            private readonly IKeyStore _store;
+            private CreatePostprocessor _postprocessorFactory;
+            private CreatePreprocessor _preprocessorFactory;
+
+            public WithEncryptionRegistry(ISerializationRegistry registry, IKeyStore store)
+            {
+                _registry = registry;
+                _store = store;
+                _postprocessorFactory = s => d => store.Encrypt(s, d);
+                _preprocessorFactory = store.DecryptFactory;
+            }
+
+            public void Register(Type scope, string name, int version, Func<JObject, IReadOnlyMetadata, IEnumerable<Event>> deserializer, CreatePreprocessor preprocessor)
+            {
+                _registry.Register(scope, name, version, deserializer, _preprocessorFactory);
+            }
+
+            public void Register<T>(string typeName, int version, Func<T, IMetadata, JObject> serializer, CreatePostprocessor postProcessor) where T : Event
+            {
+                _registry.Register(typeName, version, serializer, _postprocessorFactory);
+            }
+
+            public void Register<T>(Func<JObject, IReadOnlyMetadata, T> serializer)
+            {
+                _registry.Register(serializer);
+            }
+
+            public void Register<T>(Func<T, IMetadata, JObject> serializer)
+            {
+                _registry.Register(serializer);
+            }
+        }
 	}
+
+    public interface ISerializationRegistry
+    : IRegisterEventDeserializers, IRegisterEventSerializers,
+        IRegisterSnapshotDeserializers, IRegisterSnapshotSerializers
+    {
+
+    }
 }

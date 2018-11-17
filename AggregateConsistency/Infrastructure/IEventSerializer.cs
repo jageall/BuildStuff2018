@@ -2,6 +2,6 @@
 {
 	public interface IEventSerializer
 	{
-		SerializedEvent Serialize(string scope, Event @event);
+		SerializedEvent Serialize(string scopeIdentity, Event @event);
 	}
 }

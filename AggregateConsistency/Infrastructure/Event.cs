@@ -5,10 +5,11 @@ namespace AggregateConsistency.Infrastructure
 {
 	public abstract class Event : IEvent
 	{
-		public Guid Id { get; }
+        [JsonIgnore]
+        public Guid Id { get; internal set; }
 
-		public Event(Guid id) {
-			Id = id;
+		public Event()
+        {
 		}
 
 		[JsonIgnore]

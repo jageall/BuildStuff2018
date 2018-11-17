@@ -99,8 +99,7 @@ namespace AggregateConsistency.Infrastructure
 						throw new InvalidOperationException("All commands in a batch must have the same target identifier");
 					}
 
-					Func<UnitOfWork, ICommand, Task<UnitOfWork>> handler;
-					if(!_handlers.TryGetValue(cmd.GetType(), out handler)) {
+				    if(!_handlers.TryGetValue(cmd.GetType(), out var handler)) {
 						throw new InvalidOperationException("no handler registered for command type");
 					}
 

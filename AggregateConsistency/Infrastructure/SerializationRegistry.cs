@@ -8,11 +8,7 @@ using System.Threading.Tasks;
 
 namespace AggregateConsistency.Infrastructure
 {
-	public class SerializationRegistry :
-		IRegisterEventDeserializers,
-		IRegisterEventSerializers,
-		IRegisterSnapshotSerializers,
-		IRegisterSnapshotDeserializers
+	public class SerializationRegistry : ISerializationRegistry
 	{
 		private class CamelCaseExceptDictionaryKeysResolver : CamelCasePropertyNamesContractResolver
 		{
@@ -284,6 +280,7 @@ namespace AggregateConsistency.Infrastructure
 				{
 					foreach (var @event in deserializer(scopeIdentity, serialized.Data, metadata))
 					{
+					    @event.Id = serialized.Id;
 						yield return @event;
 					}
 				}
@@ -301,7 +298,7 @@ namespace AggregateConsistency.Infrastructure
 				_serializers = serializers;
 			}
 
-			public SerializedEvent Serialize(string id, Event @event)
+			public SerializedEvent Serialize(string scopeIdentity, Event @event)
 			{
 				if (!_serializers.TryGetValue(@event.GetType(), out var serializer))
 				{
@@ -309,7 +306,7 @@ namespace AggregateConsistency.Infrastructure
 				}
 				var md = (Metadata)((IEvent)@event).Metadata ?? new Metadata();
 
-				var data = serializer(id, @event, md);
+				var data = serializer(scopeIdentity, @event, md);
 				return new SerializedEvent(@event.Id, md.Type, data, md.ToBytes(), null, 0);
 			}
 		}

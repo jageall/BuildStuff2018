@@ -27,8 +27,7 @@ namespace AggregateConsistency.Infrastructure
 			SingleResult<T> found = null;
 			if(single != null && single.Id == commandId)
 				found = single;
-			var multiple = this as MultipleResult;
-			if(multiple != null) {
+		    if(this is MultipleResult multiple) {
 				found = multiple.Find(commandId) as SingleResult<T>;
 			}
 			if(found != null)

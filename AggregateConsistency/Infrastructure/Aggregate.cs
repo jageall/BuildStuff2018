@@ -31,7 +31,9 @@ namespace AggregateConsistency.Infrastructure
 			return _snapshotDispatcher.Take(this);
 		}
 
-		protected void Append(Event @event) {
+		protected void Append(Event @event)
+		{
+		    @event.Id = Guid.NewGuid();
 			Apply(@event);
 			_pending.Add(@event);
 		}

@@ -5,14 +5,14 @@ using System.Security.Cryptography;
 
 namespace AggregateConsistency
 {
-	interface IKeyStore
+	public interface IKeyStore
 	{
 		void Destroy(string keyName);
 		byte[] Encrypt(string keyName, byte[] data);
 		bool TryDecrypt(string keyName, byte[] data, out byte[] decrypted);
 		void CreateKeyIfNotExists(string keyName);
 	}
-	internal class ReallyInsecureAndVeryTemporaryKeyStore : IKeyStore
+	public class ReallyInsecureAndVeryTemporaryKeyStore : IKeyStore
 	{
 		private readonly RandomNumberGenerator _rng;
 		private readonly Dictionary<string, byte[]> _keys;

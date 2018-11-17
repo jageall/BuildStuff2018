@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2050
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AggregateConsistency", "AggregateConsistency\AggregateConsistency.csproj", "{F45C5E92-B0A2-477E-B4F6-EDB2DA6520C6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AggregateConsistency", "AggregateConsistency\AggregateConsistency.csproj", "{F45C5E92-B0A2-477E-B4F6-EDB2DA6520C6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AggregateConsistencyTests", "AggregateConsistencyTests\AggregateConsistencyTests.csproj", "{6831FD4E-1812-4993-AC5E-B5ED38475249}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{F45C5E92-B0A2-477E-B4F6-EDB2DA6520C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F45C5E92-B0A2-477E-B4F6-EDB2DA6520C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F45C5E92-B0A2-477E-B4F6-EDB2DA6520C6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6831FD4E-1812-4993-AC5E-B5ED38475249}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6831FD4E-1812-4993-AC5E-B5ED38475249}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6831FD4E-1812-4993-AC5E-B5ED38475249}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6831FD4E-1812-4993-AC5E-B5ED38475249}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
